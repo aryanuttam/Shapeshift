@@ -8,7 +8,7 @@ const session = require('express-session')
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-const dotenv=require('dotenv').config()
+const dotenv=require('dotenv').config();
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const User = require('./Models/auth')
 
