@@ -38,48 +38,103 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
+// app.use(session({
+//   secret: 'keyboard cat',
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {  
+//     httpOnly: true,
+//     expires: Date.now() + 1000* 60 * 60 * 24 * 7,
+//     maxAge:1000* 60 * 60 * 24 * 7 * 1
+//   }
+// }));
+
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie: {  
+  cookie: {
     httpOnly: true,
-    expires: Date.now() + 1000* 60 * 60 * 24 * 7,
-    maxAge:1000* 60 * 60 * 24 * 7 * 1
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // Set cookie to expire in 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7 * 1 // Set maximum age of cookie to 7 days
   }
 }));
-
 
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-  passport.serializeUser((user,done)=>{
-    done(null,user);
-  })
-  passport.deserializeUser((user,done)=>{
-    done(null,user);
-  })
+// Example Passport.js Google OAuth Strategy setup
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: '/auth/google/callback'
+}, (accessToken, refreshToken, profile, done) => {
+  // User authentication logic
+  return done(null, profile);
+}));
+
+// Serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  // Fetch user from database using id
+  done(null, user);
+});
+
+// Example route for authentication
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login', failureFlash: true }),
+  (req, res) => {
+    // Authentication successful
+    req.flash('success', 'Welcome! You are now logged in.');
+    res.redirect('/dashboard');
+  }
+);
+
+// Example route for displaying flash messages
+app.get('/dashboard', (req, res) => {
+  res.render('dashboard', { messages: req.flash() });
+});
+
+
+
+// app.use(flash());
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+//   passport.serializeUser((user,done)=>{
+//     done(null,user);
+//   })
+//   passport.deserializeUser((user,done)=>{
+//     done(null,user);
+//   })
 
  
-passport.serializeUser(User.serializeUser());
+// passport.serializeUser(User.serializeUser());
 
-passport.deserializeUser(User.deserializeUser());
-  //passport  check krega username and password using authenticate method provided by the passport-local-mongoose package
-passport.use(new LocalStrategy(User.authenticate())); 
+// passport.deserializeUser(User.deserializeUser());
+//   //passport  check krega username and password using authenticate method provided by the passport-local-mongoose package
+// passport.use(new LocalStrategy(User.authenticate())); 
 
 
-  passport.use(new GoogleStrategy({
-    clientID:     process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "https://shapeshift.onrender.com/auth/google/callback",
-    // callbackURL: "http://localhost:5000/auth/google/callback",
-    passReqToCallback   : true
-  },
-  function(request, accessToken, refreshToken, profile, done) {
-    done(null,profile);
-  }
-));
+//   passport.use(new GoogleStrategy({
+//     clientID:     process.env.GOOGLE_CLIENT_ID,
+//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     callbackURL: "https://shapeshift.onrender.com/auth/google/callback",
+//     // callbackURL: "http://localhost:5000/auth/google/callback",
+//     passReqToCallback   : true
+//   },
+//   function(request, accessToken, refreshToken, profile, done) {
+//     done(null,profile);
+//   }
+// ));
 
 
 
