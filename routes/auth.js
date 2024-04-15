@@ -82,23 +82,41 @@ catch (e) {
 
 
 
-router.get('/auth/google',
-  passport.authenticate('google', { scope:
-      [ 'email', 'profile' ] }
-));
+// router.get('/auth/google',
+//   passport.authenticate('google', { scope:
+//       [ 'email', 'profile' ] }
+// ));
 
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['email', 'profile'] })
+);
 
 
 router.get('/auth/google/callback',
-passport.authenticate( 'google', {
-      failureRedirect: '/login',
-      failureFlash: true
-}),(req,res)=>{
-  req.flash('success', `Welcome ${req.user.displayName} Again!!`);
-  console.log(req.user.displayName);
-  res.redirect('/home');
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    failureFlash: true
+  }),
+  (req, res) => {
+    req.flash('success', `Welcome ${req.user.displayName} Again!!`);
+    console.log(req.user.displayName);
+    res.redirect('/home');
+  }
+);
 
-});
+
+
+
+// router.get('/auth/google/callback',
+// passport.authenticate( 'google', {
+//       failureRedirect: '/login',
+//       failureFlash: true
+// }),(req,res)=>{
+//   req.flash('success', `Welcome ${req.user.displayName} Again!!`);
+//   console.log(req.user.displayName);
+//   res.redirect('/home');
+
+// });
 
 
 router.get('/logout', (req, res) => {
